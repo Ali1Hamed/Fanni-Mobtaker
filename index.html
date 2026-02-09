@@ -1,0 +1,588 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fanni Mobtaker | Visual Dashboard</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #00A9E0;
+            --secondary-color: #005696;
+            --dark-bg: #0b1120;
+            --card-bg: rgba(255, 255, 255, 0.05);
+            --text-primary: #ffffff;
+            --text-secondary: #94a3b8;
+            --border-color: rgba(255, 255, 255, 0.1);
+            --glass-bg: rgba(15, 23, 42, 0.8);
+            --success: #10b981;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Outfit', sans-serif;
+            background-color: var(--dark-bg);
+            color: var(--text-primary);
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--dark-bg);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--primary-color);
+            border-radius: 10px;
+        }
+
+        .navbar {
+            background-color: var(--glass-bg);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid var(--border-color);
+            padding: 1rem 2rem;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        .nav-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo img {
+            height: 40px;
+        }
+
+        .nav-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            letter-spacing: 1px;
+            color: var(--primary-color);
+        }
+
+        .dashboard-container {
+            max-width: 1400px;
+            margin: 2rem auto;
+            padding: 0 1rem;
+        }
+
+        .kpi-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .kpi-card {
+            background: var(--card-bg);
+            padding: 1.5rem;
+            border-radius: 16px;
+            border: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            transition: transform 0.3s ease;
+        }
+
+        .kpi-card:hover {
+            transform: translateY(-5px);
+            border-color: var(--primary-color);
+        }
+
+        .kpi-icon {
+            width: 60px;
+            height: 60px;
+            background: rgba(0, 169, 224, 0.1);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            color: var(--primary-color);
+            margin-right: 1.5rem;
+        }
+
+        .kpi-info h3 {
+            font-size: 1.8rem;
+            font-weight: 700;
+            margin-bottom: 0.2rem;
+            display: block;
+        }
+
+        /* HIDDEN NUMBERS */
+        .kpi-info p {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .charts-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .chart-container {
+            background: var(--card-bg);
+            padding: 1.5rem;
+            border-radius: 16px;
+            border: 1px solid var(--border-color);
+        }
+
+        .chart-container.wide {
+            grid-column: span 2;
+        }
+
+        @media (max-width: 992px) {
+            .chart-container.wide {
+                grid-column: span 1;
+            }
+        }
+
+        .chart-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .chart-header h3 {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--text-secondary);
+        }
+
+        .chart-wrapper {
+            height: 300px;
+            position: relative;
+        }
+
+        .chart-wrapper {
+            height: 300px;
+            position: relative;
+        }
+
+        .table-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .table-search {
+            position: relative;
+            max-width: 400px;
+            width: 100%;
+        }
+
+        .table-search i {
+            position: absolute;
+            left: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-secondary);
+        }
+
+        .table-search input {
+            width: 100%;
+            background: rgba(0, 0, 0, 0.2);
+            border: 1px solid var(--border-color);
+            padding: 0.8rem 1rem 0.8rem 2.8rem;
+            border-radius: 10px;
+            color: var(--text-primary);
+            outline: none;
+        }
+
+        .table-search input:focus {
+            border-color: var(--primary-color);
+        }
+
+        .table-wrapper {
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 800px;
+        }
+
+        th {
+            text-align: left;
+            padding: 1rem;
+            color: var(--text-secondary);
+            font-weight: 600;
+            text-transform: uppercase;
+            font-size: 0.8rem;
+            letter-spacing: 1px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        td {
+            padding: 1rem;
+            border-bottom: 1px solid var(--border-color);
+            font-size: 0.9rem;
+        }
+
+        tr:hover {
+            background: rgba(255, 255, 255, 0.02);
+        }
+
+        .badge {
+            padding: 4px 8px;
+            border-radius: 6px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .badge.ATS {
+            color: #00A9E0;
+            border: 1px solid #00A9E0;
+        }
+
+        .badge.UTE {
+            color: #10b981;
+            border: 1px solid #10b981;
+        }
+
+        .footer {
+            text-align: center;
+            padding: 2rem;
+            border-top: 1px solid var(--border-color);
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .kpi-card,
+        .chart-container,
+        .table-container {
+            animation: fadeIn 0.6s ease-out forwards;
+        }
+    </style>
+</head>
+
+<body>
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="logo">
+                <img src="https://fannimobtaker.com/wp-content/uploads/2023/10/Fanni-Mobtaker-Logo-White.png"
+                    alt="Fanni Mobtaker Logo"
+                    onerror="this.src='https://via.placeholder.com/150x50?text=Fanni+Mobtaker'">
+            </div>
+            <div class="nav-title">Registration Activity 2024</div>
+        </div>
+    </nav>
+
+    <main class="dashboard-container">
+        <section class="kpi-grid">
+            <div class="kpi-card">
+                <div class="kpi-icon"><i class="fas fa-users"></i></div>
+                <div class="kpi-info">
+                    <h3 id="stat-teams"></h3>
+                    <p>Total Teams</p>
+                </div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-icon"><i class="fas fa-check-double"></i></div>
+                <div class="kpi-info">
+                    <h3 id="stat-accepted">300</h3>
+                    <p>Accepted Teams</p>
+                </div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-icon"><i class="fas fa-user-tie"></i></div>
+                <div class="kpi-info">
+                    <h3 id="stat-supervisors"></h3>
+                    <p>Total Supervisors</p>
+                </div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-icon"><i class="fas fa-school"></i></div>
+                <div class="kpi-info">
+                    <h3 id="stat-schools"></h3>
+                    <p>Unique Schools</p>
+                </div>
+            </div>
+        </section>
+
+        <section class="charts-grid">
+            <div class="chart-container wide">
+                <div class="chart-header">
+                    <h3>Governorates Distribution</h3>
+                </div>
+                <div class="chart-wrapper"><canvas id="govChart"></canvas></div>
+            </div>
+            <div class="chart-container">
+                <div class="chart-header">
+                    <h3>Track Distribution</h3>
+                </div>
+                <div class="chart-wrapper"><canvas id="trackChart"></canvas></div>
+            </div>
+            <div class="chart-container">
+                <div class="chart-header">
+                    <h3>Gender Balance</h3>
+                </div>
+                <div class="chart-wrapper"><canvas id="genderChart"></canvas></div>
+            </div>
+            <div class="chart-container">
+                <div class="chart-header">
+                    <h3>Institutional Split (ATS vs UTE)</h3>
+                </div>
+                <div class="chart-wrapper"><canvas id="schoolTypeChart"></canvas></div>
+            </div>
+        </section>
+
+        </section>
+    </main>
+
+    <footer class="footer">
+        <p>&copy; 2024 Fanni Mobtaker. All Rights Reserved.</p>
+    </footer>
+
+    <script>
+        // Data embedded directly
+        const dashboardData = {
+            "stats": {
+                "total_teams": 3253,
+                "total_governorates": 24,
+                "total_schools": 247,
+                "total_supervisors": 903,
+                "gender": { "male": 5009, "female": 6629 }
+            },
+            "governorate_stats": {
+                "الشرقية": 730, "الإسكندرية": 318, "المنيا": 250, "الإسماعيلية": 216, "المنوفية": 216, "الفيوم": 180, "الغربية": 166, "بورسعيد": 137, "أسوان": 132, "أسيوط": 131, "البحيرة": 114, "الأقصر": 105, "الجيزة": 104, "دمياط": 100, "بني سويف": 98, "البحر الأحمر": 81, "القاهرة": 74, "القليوبية": 39, "قنا": 32, "السويس": 14, "الوادي الجديد": 7, "كفر الشيخ": 4, "مطروح": 3, "الدقهلية": 2
+            },
+            "track_stats": {
+                "الصناعي": 1271, "الفن والتصميم": 783, "الأنظمة الذكية والبرمجيات": 519, "الغذاء والضيافة": 515, "الخدمات اللوجيستية": 165
+            },
+            "school_type_stats": { "UTE": 2585, "ATS": 668 }
+        };
+
+        document.addEventListener('DOMContentLoaded', () => {
+            initDashboard(dashboardData);
+        });
+
+        function initDashboard(data) {
+            Chart.defaults.color = '#94a3b8';
+            Chart.defaults.font.family = "'Outfit', sans-serif";
+
+            // Register datalabels plugin globally
+            Chart.register(ChartDataLabels);
+
+            // Update KPI Stats with Animation
+            animateValue("stat-teams", 0, data.stats.total_teams, 1500);
+            animateValue("stat-supervisors", 0, data.stats.total_supervisors, 1500);
+            animateValue("stat-schools", 0, data.stats.total_schools, 1500);
+            animateValue("stat-accepted", 0, 300, 1500);
+
+            renderGovChart(data.governorate_stats);
+            renderTrackChart(data.track_stats);
+            renderGenderChart(data.stats.gender);
+            renderSchoolTypeChart(data.school_type_stats);
+        }
+
+        function animateValue(id, start, end, duration) {
+            const obj = document.getElementById(id);
+            if (!obj) return;
+            let startTimestamp = null;
+            const step = (timestamp) => {
+                if (!startTimestamp) startTimestamp = timestamp;
+                const progress = Math.min((timestamp - startTimestamp) / duration, 1);
+                obj.innerHTML = Math.floor(progress * (end - start) + start).toLocaleString();
+                if (progress < 1) {
+                    window.requestAnimationFrame(step);
+                }
+            };
+            window.requestAnimationFrame(step);
+        }
+
+        function renderGovChart(govStats) {
+            const ctx = document.getElementById('govChart').getContext('2d');
+            const sortedGovs = Object.entries(govStats).sort((a, b) => b[1] - a[1]).slice(0, 10);
+
+            new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: sortedGovs.map(g => g[0]),
+                    datasets: [{
+                        data: sortedGovs.map(g => g[1]),
+                        backgroundColor: '#00A9E0',
+                        borderRadius: 5
+                    }]
+                },
+                options: {
+                    indexAxis: 'y',
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            enabled: true,
+                            backgroundColor: 'rgba(15, 23, 42, 0.9)',
+                            titleFont: { family: "'Outfit'", size: 14 },
+                            bodyFont: { family: "'Outfit'", size: 14 },
+                            padding: 12,
+                            borderColor: 'rgba(255, 255, 255, 0.1)',
+                            borderWidth: 1
+                        },
+                        datalabels: { display: false }
+                    },
+                    scales: {
+                        x: { display: false }, // HIDE NUMBERS ON AXIS
+                        y: {
+                            grid: { display: false },
+                            ticks: {
+                                color: '#94a3b8',
+                                font: { size: 12 }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        function renderTrackChart(trackStats) {
+            const ctx = document.getElementById('trackChart').getContext('2d');
+            const trackMap = {
+                'الأنظمة الذكية والبرمجيات': 'Tech & SW', 'الفن والتصميم': 'Art', 'الصناعي': 'Industrial',
+                'الخدمات اللوجيستية': 'Logistics', 'الزراعي': 'Agri', 'السياحي والفندقي': 'Tourism', 'التجاري': 'Comm'
+            };
+            new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: Object.keys(trackStats).map(k => trackMap[k] || k),
+                    datasets: [{
+                        data: Object.values(trackStats),
+                        backgroundColor: ['#00A9E0', '#005696', '#10b981', '#f59e0b', '#ef4444'],
+                        borderWidth: 0
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    cutout: '70%',
+                    plugins: {
+                        legend: { position: 'right' },
+                        tooltip: {
+                            enabled: true,
+                            backgroundColor: 'rgba(15, 23, 42, 0.9)',
+                            titleFont: { family: "'Outfit'", size: 14 },
+                            bodyFont: { family: "'Outfit'", size: 14 },
+                            padding: 12,
+                            borderColor: 'rgba(255, 255, 255, 0.1)',
+                            borderWidth: 1
+                        },
+                        datalabels: { display: false }
+                    }
+                }
+            });
+        }
+
+        function renderGenderChart(genderStats) {
+            const ctx = document.getElementById('genderChart').getContext('2d');
+            new Chart(ctx, {
+                type: 'pie',
+                data: {
+                    labels: ['Male', 'Female'],
+                    datasets: [{
+                        data: [genderStats.male, genderStats.female],
+                        backgroundColor: ['#00A9E0', '#ec4899'],
+                        borderWidth: 0
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { position: 'bottom' },
+                        tooltip: { enabled: true },
+                        datalabels: {
+                            color: '#fff',
+                            font: { weight: 'bold', size: 14 },
+                            formatter: (value, ctx) => {
+                                let total = ctx.dataset.data.reduce((a, b) => a + b, 0);
+                                return ((value / total) * 100).toFixed(1) + "%";
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        function renderSchoolTypeChart(typeStats) {
+            const ctx = document.getElementById('schoolTypeChart').getContext('2d');
+            new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: Object.keys(typeStats),
+                    datasets: [{
+                        data: Object.values(typeStats),
+                        backgroundColor: ['#005696', '#00A9E0'],
+                        borderRadius: 5
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: { enabled: true },
+                        datalabels: {
+                            anchor: 'end',
+                            align: 'top',
+                            color: '#00A9E0',
+                            font: { weight: 'bold' },
+                            formatter: (value, ctx) => {
+                                let total = ctx.dataset.data.reduce((a, b) => a + b, 0);
+                                return ((value / total) * 100).toFixed(1) + "%";
+                            }
+                        }
+                    },
+                    scales: {
+                        x: { grid: { display: false } },
+                        y: { display: false, border: { display: false }, grid: { display: false } }
+                    }
+                }
+            });
+        }
+
+    </script>
+</body>
+
+</html>
