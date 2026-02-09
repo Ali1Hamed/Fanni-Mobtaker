@@ -138,9 +138,14 @@
 
         .charts-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            grid-template-columns: 1fr 1fr;
             gap: 1.5rem;
             margin-bottom: 2rem;
+        }
+
+        /* ROW 2 - Shrunk size */
+        .chart-row-shrunk {
+            height: 250px !important;
         }
 
         .chart-container {
@@ -155,6 +160,10 @@
         }
 
         @media (max-width: 992px) {
+            .charts-grid {
+                grid-template-columns: 1fr;
+            }
+
             .chart-container.wide {
                 grid-column: span 1;
             }
@@ -178,10 +187,6 @@
             position: relative;
         }
 
-        .chart-wrapper {
-            height: 300px;
-            position: relative;
-        }
 
         .table-header {
             display: flex;
@@ -342,7 +347,22 @@
         </section>
 
         <section class="charts-grid">
-            <div class="chart-container wide">
+            <!-- ROW 2: Gender & Institutional (Shrunk) -->
+            <div class="chart-container">
+                <div class="chart-header">
+                    <h3>Gender Balance</h3>
+                </div>
+                <div class="chart-wrapper chart-row-shrunk"><canvas id="genderChart"></canvas></div>
+            </div>
+            <div class="chart-container">
+                <div class="chart-header">
+                    <h3>Institutional Split (ATS vs UTE)</h3>
+                </div>
+                <div class="chart-wrapper chart-row-shrunk"><canvas id="schoolTypeChart"></canvas></div>
+            </div>
+
+            <!-- ROW 3: Governorates & Track -->
+            <div class="chart-container">
                 <div class="chart-header">
                     <h3>Governorates Distribution</h3>
                 </div>
@@ -353,18 +373,6 @@
                     <h3>Track Distribution</h3>
                 </div>
                 <div class="chart-wrapper"><canvas id="trackChart"></canvas></div>
-            </div>
-            <div class="chart-container">
-                <div class="chart-header">
-                    <h3>Gender Balance</h3>
-                </div>
-                <div class="chart-wrapper"><canvas id="genderChart"></canvas></div>
-            </div>
-            <div class="chart-container">
-                <div class="chart-header">
-                    <h3>Institutional Split (ATS vs UTE)</h3>
-                </div>
-                <div class="chart-wrapper"><canvas id="schoolTypeChart"></canvas></div>
             </div>
         </section>
 
@@ -517,28 +525,40 @@
         function renderGenderChart(genderStats) {
             const ctx = document.getElementById('genderChart').getContext('2d');
             new Chart(ctx, {
-                type: 'pie',
+                type: 'bar',
                 data: {
                     labels: ['Male', 'Female'],
                     datasets: [{
                         data: [genderStats.male, genderStats.female],
                         backgroundColor: ['#00A9E0', '#ec4899'],
-                        borderWidth: 0
+                        borderRadius: 5,
+                        barPercentage: 0.8,
+                        categoryPercentage: 0.9
                     }]
                 },
                 options: {
+                    indexAxis: 'y',
                     responsive: true,
                     maintainAspectRatio: false,
                     plugins: {
-                        legend: { position: 'bottom' },
+                        legend: { display: false },
                         tooltip: { enabled: true },
                         datalabels: {
                             color: '#fff',
+                            anchor: 'center',
+                            align: 'center',
                             font: { weight: 'bold', size: 14 },
                             formatter: (value, ctx) => {
                                 let total = ctx.dataset.data.reduce((a, b) => a + b, 0);
                                 return ((value / total) * 100).toFixed(1) + "%";
                             }
+                        }
+                    },
+                    scales: {
+                        x: { display: false },
+                        y: {
+                            grid: { display: false },
+                            ticks: { color: '#94a3b8', font: { size: 12 } }
                         }
                     }
                 }
@@ -554,19 +574,22 @@
                     datasets: [{
                         data: Object.values(typeStats),
                         backgroundColor: ['#005696', '#00A9E0'],
-                        borderRadius: 5
+                        borderRadius: 5,
+                        barPercentage: 0.8,
+                        categoryPercentage: 0.9
                     }]
                 },
                 options: {
+                    indexAxis: 'y',
                     responsive: true,
                     maintainAspectRatio: false,
                     plugins: {
                         legend: { display: false },
                         tooltip: { enabled: true },
                         datalabels: {
-                            anchor: 'end',
-                            align: 'top',
-                            color: '#00A9E0',
+                            anchor: 'center',
+                            align: 'center',
+                            color: '#fff',
                             font: { weight: 'bold' },
                             formatter: (value, ctx) => {
                                 let total = ctx.dataset.data.reduce((a, b) => a + b, 0);
@@ -575,8 +598,11 @@
                         }
                     },
                     scales: {
-                        x: { grid: { display: false } },
-                        y: { display: false, border: { display: false }, grid: { display: false } }
+                        x: { display: false },
+                        y: {
+                            grid: { display: false },
+                            ticks: { color: '#94a3b8', font: { size: 12 } }
+                        }
                     }
                 }
             });
