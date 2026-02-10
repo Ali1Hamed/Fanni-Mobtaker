@@ -88,7 +88,7 @@
 
         .kpi-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
             gap: 1.5rem;
             margin-bottom: 2rem;
         }
@@ -141,11 +141,13 @@
             grid-template-columns: 1fr 1fr;
             gap: 1.5rem;
             margin-bottom: 2rem;
+            width: 100%;
         }
 
         /* ROW 2 - Shrunk size */
         .chart-row-shrunk {
-            height: 250px !important;
+            height: 180px !important;
+            padding: 0.5rem !important;
         }
 
         .chart-container {
@@ -160,10 +162,6 @@
         }
 
         @media (max-width: 992px) {
-            .charts-grid {
-                grid-template-columns: 1fr;
-            }
-
             .chart-container.wide {
                 grid-column: span 1;
             }
@@ -173,7 +171,7 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 1.5rem;
+            margin-bottom: 0.2rem;
         }
 
         .chart-header h3 {
@@ -324,6 +322,13 @@
                 </div>
             </div>
             <div class="kpi-card">
+                <div class="kpi-icon"><i class="fas fa-user-friends"></i></div>
+                <div class="kpi-info">
+                    <h3 id="stat-members"></h3>
+                    <p>Total Members</p>
+                </div>
+            </div>
+            <div class="kpi-card">
                 <div class="kpi-icon"><i class="fas fa-check-double"></i></div>
                 <div class="kpi-info">
                     <h3 id="stat-accepted">300</h3>
@@ -356,7 +361,7 @@
             </div>
             <div class="chart-container">
                 <div class="chart-header">
-                    <h3>Institutional Split (ATS vs UTE)</h3>
+                    <h3>School type</h3>
                 </div>
                 <div class="chart-wrapper chart-row-shrunk"><canvas id="schoolTypeChart"></canvas></div>
             </div>
@@ -394,10 +399,10 @@
                 "gender": { "male": 5009, "female": 6629 }
             },
             "governorate_stats": {
-                "الشرقية": 730, "الإسكندرية": 318, "المنيا": 250, "الإسماعيلية": 216, "المنوفية": 216, "الفيوم": 180, "الغربية": 166, "بورسعيد": 137, "أسوان": 132, "أسيوط": 131, "البحيرة": 114, "الأقصر": 105, "الجيزة": 104, "دمياط": 100, "بني سويف": 98, "البحر الأحمر": 81, "القاهرة": 74, "القليوبية": 39, "قنا": 32, "السويس": 14, "الوادي الجديد": 7, "كفر الشيخ": 4, "مطروح": 3, "الدقهلية": 2
+                "Sharqia": 730, "Alexandria": 318, "Minya": 250, "Ismailia": 216, "Monufia": 216, "Fayoum": 180, "Gharbia": 166, "Port Said": 137, "Aswan": 132, "Asyut": 131, "Beheira": 114, "Luxor": 105, "Giza": 104, "Damietta": 100, "Beni Suef": 98, "Red Sea": 81, "Cairo": 74, "Qalyubia": 39, "Qena": 32, "Suez": 14, "New Valley": 7, "Kafr El-Sheikh": 4, "Matrouh": 3, "Dakahlia": 2
             },
             "track_stats": {
-                "الصناعي": 1271, "الفن والتصميم": 783, "الأنظمة الذكية والبرمجيات": 519, "الغذاء والضيافة": 515, "الخدمات اللوجيستية": 165
+                "Industrial": 1271, "Art & Design": 783, "Tech & Software": 519, "Food & Hospitality": 515, "Logistics": 165
             },
             "school_type_stats": { "UTE": 2585, "ATS": 668 }
         };
@@ -414,7 +419,9 @@
             Chart.register(ChartDataLabels);
 
             // Update KPI Stats with Animation
+            const totalMembers = data.stats.gender.male + data.stats.gender.female;
             animateValue("stat-teams", 0, data.stats.total_teams, 1500);
+            animateValue("stat-members", 0, totalMembers, 1500);
             animateValue("stat-supervisors", 0, data.stats.total_supervisors, 1500);
             animateValue("stat-schools", 0, data.stats.total_schools, 1500);
             animateValue("stat-accepted", 0, 300, 1500);
